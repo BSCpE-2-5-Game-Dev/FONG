@@ -2,6 +2,7 @@ push = require 'push'
 Class = require 'class'
 require 'Paddle_1' -- Paddle
 require 'Paddle_2' -- Paddle2
+require 'Background'
 require 'Box'      -- ball
 
 WIN_Width = 1024   -- 1280
@@ -105,7 +106,7 @@ function love.update(dt)
             sounds['scoreHit']:play()
 
             if Player_2_Score == 10 then
-                winningPlayer = 2
+                Player_Winner  = 2
                 Game_State = 'done'
                 sounds['victory']:play()
             else
@@ -120,7 +121,7 @@ function love.update(dt)
             sounds['scoreHit']:play()
             
             if Player_1_Score == 10 then
-                winningPlayer = 1
+                Player_Winner  = 1
                 Game_State = 'done'
                 sounds['victory']:play()
             else
@@ -175,7 +176,7 @@ function love.keypressed(key)
             Player_1_Score = 0
             Player_2_Score = 0
 
-            if Player_Winner == 1 then -- winningPlayer
+            if Player_Winner == 1 then -- Player_Winner 
                 Player_Server = 2
             else
                 Player_Server = 1
@@ -205,7 +206,7 @@ function love.draw()
     elseif Game_State == 'play' then
     elseif Game_State == 'done' then
         love.graphics.setFont(L_Font)
-        love.graphics.printf('Player ' .. tostring(winningPlayer) .. ' wins!',
+        love.graphics.printf('Player ' .. tostring(Player_Winner ) .. ' wins!',
             0, 10, VIR_Width, 'center')
         love.graphics.setFont(s_Font)
         love.graphics.printf('Press ENTER to restart!', 0, 30, VIR_Width, 'center')

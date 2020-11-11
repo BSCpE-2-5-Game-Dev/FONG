@@ -14,7 +14,5 @@ function Background:update(dt)
 end
 
 function Background:render()
-
     love.graphics.draw(self.img, self.x, self.y)
-
 end
