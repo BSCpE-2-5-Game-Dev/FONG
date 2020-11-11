@@ -1,13 +1,14 @@
 push = require 'push'
 Class = require 'class'
-require 'paddle'
-require 'ball'
+require 'Paddle_1' -- Paddle
+require 'Paddle_2' -- Paddle2
+require 'Box'      -- ball
 
-WIN_Width = 1024
-WIN_Height = 600
-VIR_Width = 423
-VIR_Height = 243
-PAD_Speed = 275
+WIN_Width = 1024   -- 1280
+WIN_Height = 600   -- 720
+VIR_Width = 432    -- 423
+VIR_Height = 243   -- 242
+PAD_Speed = 275    -- 200
 
 function love.load()
 
@@ -17,23 +18,37 @@ function love.load()
 
     s_Font = love.graphics.newFont('font.ttf', 8)
     L_Font = love.graphics.newFont('font.ttf', 16)
-    SCORE_Font = love.graphics.newFont('font.ttf', 32)
-
+    SCORE _Font = love.graphics.newFont('font.ttf', 32)
     love.graphics.setFont(s_Font)
+
+    sounds = {
+        ['paddleHit'] = love.audio.newSource('sounds/paddleHit.wav', 'static'),
+        ['scoreHit'] = love.audio.newSource('sounds/scoreHit.wav', 'static'),
+        ['wallHit'] = love.audio.newSource('sounds/wallHit.wav', 'static'),
+        ['victory'] = love.audio.newSource('sounds/victory.wav', 'static')
+    }
 
     push:setupScreen(VIR_Width, VIR_Height, WIN_Width, WIN_Height, {
         fullscrn = false,
-        resizable = false,
-        V_sync = true
+        resizable = true,
+        V_sync = true, -- vsync
+        canvas = false
     })
 
     Player_1_Score = 0
     Player_2_Score = 0
     Player_Server = 1
-    Player_1 = paddle(10, 30, 5, 50)
-    Player_2 = paddle(VIR_Width - 10, VIR_Height - 30, 5, 50)
-    Fong_Ball = ball(VIR_Width / 2 - 2, VIR_Height / 2 - 2, 7, 7)
+    Player_Winner = 0
+    Player_1 = Paddle_1(10, VIR_Height / 2 - 12, 10, 24)
+    Player_2 = Paddle_2(VIR_Width - 20, VIR_Height / 2 - 12, 10, 24)
+    Fong_Ball = Box(VIR_Width / 2 - 5, VIR_Height / 2 - 5, 10, 10)
     Game_State = 'start'
+
+end
+
+function love.resize(w, h)
+
+    push:resize(w, h)
 
 end
 
@@ -49,44 +64,50 @@ function love.update(dt)
 
     elseif Game_State == 'play' then
         if Fong_Ball:collides(Player_1) then
-            Fong_Ball.dx = -Fong_Ball.dx * 1.07
-            Fong_Ball.x = Player_1.x + 5
+            Fong_Ball.dx = -Fong_Ball.dx * 1.07 -- 1.03
+            Fong_Ball.x = Player_1.x + 10 -- 5
 
             if Fong_Ball.dy < 0 then
                 Fong_Ball.dy = -math.random(10, 150)
             else
                 Fong_Ball.dy = math.random(10, 150)
             end
+            sounds['paddleHit']:play()
         end
 
         if Fong_Ball:collides(Player_2) then
-            Fong_Ball.dx = -Fong_Ball.dx * 1.07
-            Fong_Ball.x = Player_2.x - 4
+            Fong_Ball.dx = -Fong_Ball.dx * 1.07 -- 1.03
+            Fong_Ball.x = Player_2.x - 10 -- 4
 
             if Fong_Ball.dy < 0 then
                 Fong_Ball.dy = -math.random(10, 150)
             else
                 Fong_Ball.dy = math.random(10, 150)
             end
+            sounds['paddleHit']:play()
         end
 
         if Fong_Ball.y <= 0 then
             Fong_Ball.y = 0
             Fong_Ball.dy = -Fong_Ball.dy
+            sounds['wallHit']:play()
         end
 
         if Fong_Ball.y >= VIR_Height - 4 then
             Fong_Ball.y = VIR_Height - 4
             Fong_Ball.dy = -Fong_Ball.dy
+            sounds['wallHit']:play()
         end
         
         if Fong_Ball.x < 0 then
             Player_Server = 1
             Player_2_Score = Player_2_Score + 1
+            sounds['scoreHit']:play()
 
             if Player_2_Score == 10 then
                 winningPlayer = 2
                 Game_State = 'done'
+                sounds['victory']:play()
             else
                 Game_State = 'serve'
                 Fong_Ball:reset()
@@ -96,10 +117,12 @@ function love.update(dt)
         if Fong_Ball.x > VIR_Width then
             Player_Server = 2
             Player_1_Score = Player_1_Score + 1
+            sounds['scoreHit']:play()
             
             if Player_1_Score == 10 then
                 winningPlayer = 1
                 Game_State = 'done'
+                sounds['victory']:play()
             else
                 Game_State = 'serve'
                 Fong_Ball:reset()
@@ -138,6 +161,7 @@ function love.keypressed(key)
 
     if key == 'escape' then
         love.event.quit()
+
     elseif key == 'enter' or key == 'return' then
         if Game_State == 'start' then
             Game_State = 'serve'
@@ -151,7 +175,7 @@ function love.keypressed(key)
             Player_1_Score = 0
             Player_2_Score = 0
 
-            if winningPlayer == 1 then
+            if Player_Winner == 1 then -- winningPlayer
                 Player_Server = 2
             else
                 Player_Server = 1
@@ -163,8 +187,8 @@ end
 
 function love.draw()
 
-    push:apply('start')
-    love.graphics.clear(40/255, 45/255, 52/255, 255/255)
+    push:start() -- push:apply('start')
+    Background:render() -- love.graphics.clear(40/255, 45/255, 52/255, 255/255)
     love.graphics.setFont(s_Font)
 
     displayScore()
@@ -193,7 +217,7 @@ function love.draw()
 
     displayFPS()
 
-    push:apply('end')
+    push:finish() -- push:apply('end')
 
 end
 
@@ -203,7 +227,7 @@ function displayFPS()
     love.graphics.setFont(s_Font)
     love.graphics.setColor(0, 255, 0, 255)
     love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), VIR_Width - 40, 10)
-
+    -- love.graphics.setColor(255/255, 255/244, 255/255, 255/255)
 end
 
 function displayScore()
