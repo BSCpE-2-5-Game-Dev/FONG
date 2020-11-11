@@ -18,7 +18,7 @@ function love.load()
 
     s_Font = love.graphics.newFont('font.ttf', 8)
     L_Font = love.graphics.newFont('font.ttf', 16)
-    SCORE _Font = love.graphics.newFont('font.ttf', 32)
+    SCORE_Font = love.graphics.newFont('font.ttf', 32)
     love.graphics.setFont(s_Font)
 
     sounds = {
