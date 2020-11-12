@@ -23,8 +23,8 @@ function Box:collides(paddle)
 end
 
 function Box:reset()
-    self.x = VIR_WIDTH / 2 - 10
-    self.y = VIR_HEIGHT / 2 - 10
+    self.x = VIR_Width / 2 - 10
+    self.y = VIR_Height / 2 - 10
     self.dx = 0
     self.dy = 0
 end

@@ -1,49 +1,49 @@
 push = require 'push'
 Class = require 'class'
-require 'Paddle_1' -- Paddle
-require 'Paddle_2' -- Paddle2
+require 'Paddle_1'  
+require 'Paddle_2'  
 require 'Background'
-require 'Box'      -- ball
-
-WIN_Width = 1024   -- 1280
-WIN_Height = 600   -- 720
-VIR_Width = 432    -- 423
-VIR_Height = 243   -- 242
-PAD_Speed = 275    -- 200
+require 'Box'       
+ 
+WIN_Width  = 1280   
+WIN_Height = 680    
+VIR_Width  = 432   
+VIR_Height = 242    
+PAD_Speed  = 275    
 
 function love.load()
 
     love.graphics.setDefaultFilter('nearest', 'nearest')
-    love.window.setTitle('Fong')
+    love.window.setTitle('Rio and Lui Pong')
     math.randomseed(os.time())
 
     s_Font = love.graphics.newFont('font.ttf', 8)
     L_Font = love.graphics.newFont('font.ttf', 16)
     SCORE_Font = love.graphics.newFont('font.ttf', 32)
     love.graphics.setFont(s_Font)
-
+ 
     sounds = {
         ['paddleHit'] = love.audio.newSource('sounds/paddleHit.wav', 'static'),
-        ['scoreHit'] = love.audio.newSource('sounds/scoreHit.wav', 'static'),
-        ['wallHit'] = love.audio.newSource('sounds/wallHit.wav', 'static'),
-        ['victory'] = love.audio.newSource('sounds/victory.wav', 'static')
+        ['scoreHit']  = love.audio.newSource('sounds/scoreHit.wav', 'static'),
+        ['wallHit']   = love.audio.newSource('sounds/wallHit.wav', 'static'),
+        ['victory']   = love.audio.newSource('sounds/victory.wav', 'static')
     }
 
     push:setupScreen(VIR_Width, VIR_Height, WIN_Width, WIN_Height, {
-        fullscrn = false,
+        fullscrn  = false,
         resizable = true,
-        V_sync = true, -- vsync
-        canvas = false
+        V_sync    = true, 
+        canvas    = false
     })
-
+    Background:init()
     Player_1_Score = 0
     Player_2_Score = 0
-    Player_Server = 1
-    Player_Winner = 0
-    Player_1 = Paddle_1(10, VIR_Height / 2 - 12, 10, 24)
-    Player_2 = Paddle_2(VIR_Width - 20, VIR_Height / 2 - 12, 10, 24)
-    Fong_Ball = Box(VIR_Width / 2 - 5, VIR_Height / 2 - 5, 10, 10)
-    Game_State = 'start'
+    Player_Server  = 1
+    Player_Winner  = 0
+    Player_1       = Paddle_1(10, VIR_Height / 2 - 12, 10, 24)
+    Player_2       = Paddle_2(VIR_Width - 20, VIR_Height / 2 - 12, 10, 24)
+    Fong_Ball      = Box(VIR_Width / 2 - 5, VIR_Height / 2 - 5, 10, 10)
+    Game_State     = 'start'
 
 end
 
@@ -52,6 +52,7 @@ function love.resize(w, h)
     push:resize(w, h)
 
 end
+
 
 function love.update(dt)
 
@@ -65,8 +66,8 @@ function love.update(dt)
 
     elseif Game_State == 'play' then
         if Fong_Ball:collides(Player_1) then
-            Fong_Ball.dx = -Fong_Ball.dx * 1.07 -- 1.03
-            Fong_Ball.x = Player_1.x + 10 -- 5
+            Fong_Ball.dx = -Fong_Ball.dx * 1.07 
+            Fong_Ball.x  = Player_1.x + 10 
 
             if Fong_Ball.dy < 0 then
                 Fong_Ball.dy = -math.random(10, 150)
@@ -77,8 +78,8 @@ function love.update(dt)
         end
 
         if Fong_Ball:collides(Player_2) then
-            Fong_Ball.dx = -Fong_Ball.dx * 1.07 -- 1.03
-            Fong_Ball.x = Player_2.x - 10 -- 4
+            Fong_Ball.dx = -Fong_Ball.dx * 1.07 
+            Fong_Ball.x  = Player_2.x - 10
 
             if Fong_Ball.dy < 0 then
                 Fong_Ball.dy = -math.random(10, 150)
@@ -89,19 +90,19 @@ function love.update(dt)
         end
 
         if Fong_Ball.y <= 0 then
-            Fong_Ball.y = 0
+            Fong_Ball.y  = 0
             Fong_Ball.dy = -Fong_Ball.dy
             sounds['wallHit']:play()
         end
 
-        if Fong_Ball.y >= VIR_Height - 4 then
-            Fong_Ball.y = VIR_Height - 4
+        if Fong_Ball.y >= VIR_Height - 30 then
+            Fong_Ball.y  = VIR_Height - 30
             Fong_Ball.dy = -Fong_Ball.dy
             sounds['wallHit']:play()
         end
         
         if Fong_Ball.x < 0 then
-            Player_Server = 1
+            Player_Server  = 1
             Player_2_Score = Player_2_Score + 1
             sounds['scoreHit']:play()
 
@@ -116,7 +117,7 @@ function love.update(dt)
         end
 
         if Fong_Ball.x > VIR_Width then
-            Player_Server = 2
+            Player_Server  = 2
             Player_1_Score = Player_1_Score + 1
             sounds['scoreHit']:play()
             
@@ -136,6 +137,9 @@ function love.update(dt)
         Player_1.dy = -PAD_Speed
     elseif love.keyboard.isDown('s') then
         Player_1.dy = PAD_Speed
+        if Player_1.y >= VIR_Height - 50 then
+            Player_1.y  = VIR_Height - 50
+        end
     else
         Player_1.dy = 0
     end
@@ -144,6 +148,9 @@ function love.update(dt)
         Player_2.dy = -PAD_Speed
     elseif love.keyboard.isDown('down') then
         Player_2.dy = PAD_Speed
+        if Player_2.y >= VIR_Height - 50 then
+            Player_2.y  = VIR_Height - 50
+        end
     else
         Player_2.dy = 0
     end
@@ -156,7 +163,6 @@ function love.update(dt)
     Player_2:update(dt)
 
 end
-
 
 function love.keypressed(key)
 
@@ -176,7 +182,7 @@ function love.keypressed(key)
             Player_1_Score = 0
             Player_2_Score = 0
 
-            if Player_Winner == 1 then -- Player_Winner 
+            if Player_Winner == 1 then 
                 Player_Server = 2
             else
                 Player_Server = 1
@@ -188,29 +194,29 @@ end
 
 function love.draw()
 
-    push:start() -- push:apply('start')
-    Background:render() -- love.graphics.clear(40/255, 45/255, 52/255, 255/255)
-    love.graphics.setFont(s_Font)
-
-    displayScore()
+    push:apply('start')
+    Background:render() 
+    
 
     if Game_State == 'start' then
         love.graphics.setFont(s_Font)
-        love.graphics.printf('Welcome to Fong!', 0, 10, VIR_Width, 'center')
-        love.graphics.printf('Press ENTER to begin!', 0, 20, VIR_Width, 'center')
+        love.graphics.printf('Welcome to Rio and Lui Pong!', 0, 95, VIR_Width, 'center')
+        love.graphics.printf('Press ENTER to Begin!', 0, 140, VIR_Width, 'center')
     elseif Game_State == 'serve' then
         love.graphics.setFont(s_Font)
-        love.graphics.printf('Player ' .. tostring(Player_Server) .. "'s serve!", 
-            0, 10, VIR_Width, 'center')
-        love.graphics.printf('Press ENTER to serve!', 0, 20, VIR_Width, 'center')
+        love.graphics.printf('Player ' .. tostring(Player_Server) .. "'s Serve!", 
+            0, 90, VIR_Width, 'center')
+        love.graphics.printf('Press ENTER to Serve!', 0, 140, VIR_Width, 'center')
     elseif Game_State == 'play' then
     elseif Game_State == 'done' then
         love.graphics.setFont(L_Font)
-        love.graphics.printf('Player ' .. tostring(Player_Winner ) .. ' wins!',
-            0, 10, VIR_Width, 'center')
+        love.graphics.printf('Player ' .. tostring(Player_Winner) .. ' Wins!',
+            0, 90, VIR_Width, 'center')
         love.graphics.setFont(s_Font)
-        love.graphics.printf('Press ENTER to restart!', 0, 30, VIR_Width, 'center')
+        love.graphics.printf('Press ENTER to Restart!', 0, 140, VIR_Width, 'center')
     end
+
+    displayScore()
 
     Player_1:render()
     Player_2:render()
@@ -218,25 +224,25 @@ function love.draw()
 
     displayFPS()
 
-    push:finish() -- push:apply('end')
+    push:finish()
 
 end
 
-
-function displayFPS()
-
-    love.graphics.setFont(s_Font)
-    love.graphics.setColor(0, 255, 0, 255)
-    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), VIR_Width - 40, 10)
-    -- love.graphics.setColor(255/255, 255/244, 255/255, 255/255)
-end
 
 function displayScore()
 
     love.graphics.setFont(SCORE_Font)
     love.graphics.print(tostring(Player_1_Score), VIR_Width / 2 - 50, 
-        VIR_Height - 43)
+        VIR_Height - 53)
     love.graphics.print(tostring(Player_2_Score), VIR_Width / 2 + 30,
-        VIR_Height - 43)
+        VIR_Height - 53)
 
+end
+
+function displayFPS()
+
+    love.graphics.setFont(s_Font)
+    love.graphics.setColor(0, 255, 0, 255)
+    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), VIR_Width - 55, 10)
+    love.graphics.setColor(255/255, 255/244, 255/255, 255/255)
 end
